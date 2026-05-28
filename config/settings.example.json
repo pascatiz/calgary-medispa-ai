@@ -1,0 +1,51 @@
+{
+  "clinic": {
+    "name": "Calgary MediSpa",
+    "city": "Calgary",
+    "province": "AB",
+    "country": "Canada",
+    "physician": "Dr. [Last Name]",
+    "license_number": "[College of Physicians License #]",
+    "phone": "[Clinic Phone]",
+    "website": "[Clinic Website]"
+  },
+  "payroll": {
+    "max_weekly_hours": 44,
+    "overtime_threshold": 44,
+    "vacation_pay_rate": 0.04,
+    "province": "AB",
+    "note": "Alberta Employment Standards - adjust for your province"
+  },
+  "output": {
+    "directory": "outputs",
+    "log_directory": "logs",
+    "log_level": "INFO",
+    "date_format": "%Y-%m-%d",
+    "timestamp_format": "%Y%m%d_%H%M%S"
+  },
+  "soap": {
+    "clinic_name": "Calgary MediSpa",
+    "footer_text": "Physician-Led Aesthetic Medicine | Calgary, AB",
+    "audit_retention_years": 10,
+    "require_provider_review": true
+  },
+  "marketing": {
+    "instagram_handle": "@calgarymediSpa",
+    "facebook_page": "Calgary MediSpa",
+    "tiktok_handle": "@calgarymediSpa",
+    "default_cta": "Book online or call us today",
+    "clinic_city_tag": "Calgary, AB"
+  },
+  "google_workspace": {
+    "enabled": false,
+    "service_account_file": "config/service_account.json",
+    "timezone": "America/Edmonton",
+    "note": "Set enabled to true after configuring credentials in .env"
+  },
+  "_warnings": [
+    "NEVER commit real patient data to this repository",
+    "NEVER commit .env or service_account.json files",
+    "Review all AI-generated outputs before clinical use",
+    "This system does not replace licensed medical judgment"
+  ]
+}
