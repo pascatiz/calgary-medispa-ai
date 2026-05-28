@@ -1,0 +1,19 @@
+{
+  "name": "calgary-medispa-ai",
+  "version": "1.0.0",
+  "description": "Cloud-based AI automation command centre for Calgary MediSpa",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"No tests configured yet\""
+  },
+  "keywords": ["medispa", "clinic", "automation", "ai"],
+  "author": "Calgary MediSpa",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
