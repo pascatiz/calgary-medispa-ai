@@ -56,6 +56,7 @@ def run(module: str):
       training    Check injector training status
       marketing   Generate content calendar
       productivity  Run productivity planning tools
+      obsidian    Manage the git-synced Obsidian vault
     """
     modules = {
         "soap": run_soap,
@@ -63,6 +64,7 @@ def run(module: str):
         "training": run_training,
         "marketing": run_marketing,
         "productivity": run_productivity,
+        "obsidian": run_obsidian,
     }
 
     if module not in modules:
@@ -152,6 +154,64 @@ def logs(lines: int):
 
 
 # ─────────────────────────────────────────────
+# Obsidian vault commands
+# ─────────────────────────────────────────────
+
+@cli.command()
+@click.argument("content")
+@click.option("--title", default=None, help="Note title (default: first words of content)")
+@click.option("--folder", default="00-Inbox", help="Vault folder (default: 00-Inbox)")
+@click.option("--tags", default="", help="Comma-separated tags")
+def note(content: str, title: str, folder: str, tags: str):
+    """Save a quick note into the Obsidian vault.
+
+    Example: python cli.py note "Restock filler order placed" --tags ops
+    """
+    from obsidian.vault_manager import add_note
+    note_title = title or " ".join(content.split()[:6])
+    tag_list = [t for t in tags.split(",") if t.strip()]
+    filepath = add_note(note_title, content, folder=folder, tags=tag_list)
+    click.echo(f"  Note saved: {filepath}")
+    click.echo("  Commit and push to sync it to Obsidian.")
+    log_action("note", "success", str(filepath))
+
+
+@cli.command()
+@click.argument("entry")
+@click.option("--section", default="Session Log",
+              help="Memory section: Preferences, Clinic Facts, or Session Log")
+def remember(entry: str, section: str):
+    """Add an entry to Claude's persistent memory.
+
+    Example: python cli.py remember "Prefers SOAP notes in bullet form" --section Preferences
+    """
+    from obsidian.vault_manager import remember as vault_remember
+    filepath = vault_remember(entry, section=section)
+    click.echo(f"  Remembered in: {filepath}")
+    log_action("remember", "success", entry[:80])
+
+
+@cli.command()
+def recall():
+    """Show Claude's persistent memory file."""
+    from obsidian.vault_manager import recall as vault_recall
+    click.echo("\n" + vault_recall())
+    log_action("recall", "success", "Memory displayed")
+
+
+@cli.command()
+@click.argument("query")
+def search(query: str):
+    """Search all vault notes for a keyword."""
+    from obsidian.vault_manager import search_notes, VAULT_DIR
+    matches = search_notes(query)
+    click.echo(f"\n  {len(matches)} notes matching '{query}':")
+    for path in matches[:25]:
+        click.echo(f"  - {path.relative_to(VAULT_DIR)}")
+    log_action("search", "success", f"{query} -> {len(matches)} matches")
+
+
+# ─────────────────────────────────────────────
 # Module runners
 # ─────────────────────────────────────────────
 
@@ -172,6 +232,11 @@ def run_training():
 
 def run_marketing():
     from marketing.content_pipeline import run
+    run(safe_save)
+
+
+def run_obsidian():
+    from obsidian.vault_manager import run
     run(safe_save)
 
 

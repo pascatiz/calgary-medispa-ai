@@ -27,6 +27,14 @@ logs/*
 !logs/.gitkeep
 
 # ─────────────────────────────────────────────
+# OBSIDIAN - Sync notes, not device-specific state
+# ─────────────────────────────────────────────
+vault/.obsidian/workspace.json
+vault/.obsidian/workspace-mobile.json
+vault/.obsidian/cache/
+vault/.trash/
+
+# ─────────────────────────────────────────────
 # Python
 # ─────────────────────────────────────────────
 __pycache__/
