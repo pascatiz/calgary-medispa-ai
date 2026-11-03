@@ -14,5 +14,6 @@ whatever is written here shapes how Claude behaves in future sessions.
 
 ## Session Log
 
+- **2026-11-03 11:01** — Opened PR #1 to land the vault on main; published the MediSpa Vault Guide (claude.ai/artifact/EA8BQPm7aERTuFuutEkdk1); setup email drafted but Gmail connector needs re-authorization
 - **2026-11-03** — Verified and hardened the vault integration: added `python cli.py sync` (one-command commit+push to Obsidian) and vault health checks in `status`.
 - **2026-07-08** — Obsidian vault integration built and verified: vault/ folder, `python cli.py note|remember|recall|search` commands, and this memory file.
