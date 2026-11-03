@@ -15,6 +15,7 @@ This repository is a cloud-based AI automation command centre for Calgary MediSp
 - **Injector Training Tracker** — Track onboarding checklists for injector staff through all certification stages
 - **Marketing Content Pipeline** — Generate a 7-day social media content calendar for all service lines
 - **Personal Productivity Suite** — Daily planner, meeting notes, weekly goals, KPI tracker, and time-block scheduling
+- **Obsidian Vault Integration** — A git-synced Obsidian vault (`vault/`) with quick note capture and a persistent Claude memory that evolves over time
 - **Google Workspace Placeholders** — Ready-to-build hooks for Drive, Sheets, and Gmail integration
 
 ---
@@ -77,7 +78,59 @@ python cli.py run marketing
 
 # Run productivity tools
 python cli.py run productivity
+
+# Obsidian vault — capture a note, manage memory, search
+python cli.py note "Called supplier about filler restock" --tags ops
+python cli.py remember "Prefers SOAP notes in bullet form" --section Preferences
+python cli.py recall
+python cli.py search "filler"
+python cli.py run obsidian
+
+# Push vault changes so they appear in your Obsidian app
+python cli.py sync
 ```
+
+---
+
+## Obsidian Vault Integration
+
+The `vault/` folder is a real Obsidian vault that syncs through this git repository. Notes flow both ways: Claude Code saves notes here and pushes; your Obsidian app pulls them down (and pushes your own edits back).
+
+### Connect your Obsidian app (one-time setup)
+
+1. **Clone this repo on your computer** (or phone via a git client):
+   ```bash
+   git clone https://github.com/pascatiz/calgary-medispa-ai.git
+   ```
+2. **Open the vault in Obsidian**: Open Obsidian → *Open folder as vault* → select the `calgary-medispa-ai/vault` folder.
+3. **Install the Obsidian Git community plugin** (Settings → Community plugins → Browse → "Git"). Enable auto-pull and auto-push (e.g. every 10 minutes). This keeps the vault in sync with what Claude Code writes — no manual git commands needed.
+
+### Vault structure
+
+```
+vault/
+├── Home.md                    # Vault dashboard
+├── 00-Inbox/                  # Quick capture — triage regularly
+├── 10-Notes/                  # Organized notes
+├── 20-Clinic-Operations/      # SOPs, meeting notes, plans
+└── 90-Claude-Memory/
+    └── Memory.md              # Claude's persistent memory
+```
+
+### Sending notes via Claude Code
+
+From any Claude Code session (web, mobile app, or terminal), just tell Claude what to note — e.g. *"Add a note to my vault: staff meeting moved to Thursday"* — and it will save the note, commit, and push. Or run the CLI directly:
+
+```bash
+python cli.py note "Staff meeting moved to Thursday" --tags scheduling
+python cli.py sync   # commit + push in one step — your Obsidian app pulls it down
+```
+
+### How Claude evolves over time
+
+`vault/90-Claude-Memory/Memory.md` is Claude's long-term memory, and the repo's `CLAUDE.md` instructs every Claude Code session to read it at startup and append what it learns (your preferences, clinic facts, session outcomes). The more you work with Claude in this repo, the more context it carries into the next session. You can read and edit the memory directly in Obsidian — it's just a note.
+
+> **Privacy:** never store patient names, DOB, or health information in the vault or memory (Alberta HIA / PIPEDA). The vault syncs through GitHub.
 
 ---
 
@@ -138,6 +191,10 @@ calgary-medispa-ai/
 │   ├── daily_planner.py              # Daily priority planner
 │   ├── meeting_notes.py              # Meeting notes organizer
 │   └── goal_tracker.py               # Goals and KPI tracker
+├── obsidian/
+│   └── vault_manager.py              # Obsidian vault notes + Claude memory
+├── vault/                             # Git-synced Obsidian vault (open in Obsidian)
+├── CLAUDE.md                          # Claude Code session instructions + memory rules
 ├── google/
 │   └── google_workspace_placeholder.py  # Google integration hooks
 └── config/
