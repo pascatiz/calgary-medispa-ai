@@ -23,4 +23,5 @@ Tell Claude what to note, or run directly:
 python cli.py note "Called supplier about filler restock" --tags ops,inventory
 python cli.py remember "Prefers SOAP notes in bullet form"
 python cli.py recall
+python cli.py sync
 ```

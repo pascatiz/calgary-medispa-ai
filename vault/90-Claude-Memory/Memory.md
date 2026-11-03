@@ -14,4 +14,5 @@ whatever is written here shapes how Claude behaves in future sessions.
 
 ## Session Log
 
+- **2026-11-03** — Verified and hardened the vault integration: added `python cli.py sync` (one-command commit+push to Obsidian) and vault health checks in `status`.
 - **2026-07-08** — Obsidian vault integration built and verified: vault/ folder, `python cli.py note|remember|recall|search` commands, and this memory file.
