@@ -162,7 +162,7 @@ def run(safe_save):
         content = get_multiline("\n  Note content:")
         path = add_note(title, content, tags=tags)
         click.echo(f"\n  Note saved: {path}")
-        click.echo("  Remember to commit and push so it syncs to Obsidian.")
+        click.echo("  Run: python cli.py sync — to push it to your Obsidian app.")
     elif choice == "2":
         notes = list_notes()
         click.echo(f"\n  {len(notes)} notes in vault (newest first):")

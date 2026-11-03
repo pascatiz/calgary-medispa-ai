@@ -85,6 +85,9 @@ python cli.py remember "Prefers SOAP notes in bullet form" --section Preferences
 python cli.py recall
 python cli.py search "filler"
 python cli.py run obsidian
+
+# Push vault changes so they appear in your Obsidian app
+python cli.py sync
 ```
 
 ---
@@ -120,6 +123,7 @@ From any Claude Code session (web, mobile app, or terminal), just tell Claude wh
 
 ```bash
 python cli.py note "Staff meeting moved to Thursday" --tags scheduling
+python cli.py sync   # commit + push in one step — your Obsidian app pulls it down
 ```
 
 ### How Claude evolves over time

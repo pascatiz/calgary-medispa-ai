@@ -111,6 +111,26 @@ def status():
     outputs = list(Path("outputs").glob("*.md")) if Path("outputs").exists() else []
     click.echo(f"  [OK] Output files: {len(outputs)} .md files in /outputs")
 
+    # Obsidian vault health
+    vault = Path("vault")
+    if vault.exists():
+        notes = list(vault.rglob("*.md"))
+        memory_ok = (vault / "90-Claude-Memory" / "Memory.md").exists()
+        click.echo(f"  [OK] Obsidian vault: {len(notes)} notes in /vault")
+        click.echo(f"  [{'OK' if memory_ok else 'WARN'}] Claude memory: "
+                   f"{'Found' if memory_ok else 'MISSING — run: python cli.py recall'}")
+        import subprocess
+        unsynced = subprocess.run(
+            ["git", "status", "--porcelain", "--", "vault"],
+            capture_output=True, text=True).stdout.strip()
+        if unsynced:
+            count = len(unsynced.splitlines())
+            click.echo(f"  [WARN] Vault sync: {count} unsynced change(s) — run: python cli.py sync")
+        else:
+            click.echo("  [OK] Vault sync: no uncommitted vault changes")
+    else:
+        click.echo("  [WARN] Obsidian vault: MISSING — run: python cli.py recall to create it")
+
     # Count logs
     log_file = Path("logs") / "cli.log"
     if log_file.exists():
@@ -172,7 +192,7 @@ def note(content: str, title: str, folder: str, tags: str):
     tag_list = [t for t in tags.split(",") if t.strip()]
     filepath = add_note(note_title, content, folder=folder, tags=tag_list)
     click.echo(f"  Note saved: {filepath}")
-    click.echo("  Commit and push to sync it to Obsidian.")
+    click.echo("  Run: python cli.py sync — to push it to your Obsidian app.")
     log_action("note", "success", str(filepath))
 
 
@@ -197,6 +217,54 @@ def recall():
     from obsidian.vault_manager import recall as vault_recall
     click.echo("\n" + vault_recall())
     log_action("recall", "success", "Memory displayed")
+
+
+@cli.command()
+@click.option("-m", "--message", default=None, help="Commit message (default: auto-generated)")
+def sync(message: str):
+    """Commit and push vault/memory changes so they reach your Obsidian app.
+
+    Run this after adding notes. Your Obsidian Git plugin (or a git pull on
+    your computer) then picks them up automatically.
+    """
+    import subprocess
+
+    def git(*args):
+        return subprocess.run(["git", *args], capture_output=True, text=True)
+
+    branch = git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+    if not branch or branch == "HEAD":
+        click.echo("  ERROR: Not on a git branch — cannot sync.")
+        log_action("sync", "error", "Detached HEAD or not a repo")
+        sys.exit(1)
+
+    git("add", "vault")
+    staged = git("diff", "--cached", "--name-only").stdout.strip()
+    if staged:
+        count = len(staged.splitlines())
+        msg = message or f"Vault sync: {count} note file(s) updated"
+        commit = git("commit", "-m", msg)
+        if commit.returncode != 0:
+            click.echo(f"  ERROR: Commit failed:\n{commit.stderr or commit.stdout}")
+            log_action("sync", "error", "Commit failed")
+            sys.exit(1)
+        click.echo(f"  Committed: {msg}")
+    else:
+        click.echo("  No new vault changes to commit.")
+
+    pull = git("pull", "--rebase", "--autostash", "origin", branch)
+    if pull.returncode != 0 and "couldn't find remote ref" not in (pull.stderr or "").lower():
+        click.echo(f"  WARN: Pull failed (continuing to push):\n{(pull.stderr or '').strip()}")
+
+    push = git("push", "-u", "origin", branch)
+    if push.returncode != 0:
+        click.echo(f"  ERROR: Push failed:\n{(push.stderr or '').strip()}")
+        click.echo("  Your notes are committed locally — retry with: python cli.py sync")
+        log_action("sync", "error", "Push failed")
+        sys.exit(1)
+
+    click.echo(f"  Synced to origin/{branch} — your Obsidian app will pick it up on next pull.")
+    log_action("sync", "success", f"Pushed vault to {branch}")
 
 
 @cli.command()
